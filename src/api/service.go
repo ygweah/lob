@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -79,7 +80,25 @@ func (s *AddressService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("query")
 	log.Printf("http request query: %v", q)
 
-	adrs := s.addressManager.Find(q)
+	from := r.URL.Query().Get("from")
+	log.Printf("http request from: %v", from)
+
+	fromIndex, err := strconv.Atoi(from)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	to := r.URL.Query().Get("to")
+	log.Printf("http request to: %v", to)
+
+	toIndex, err := strconv.Atoi(to)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	adrs := s.addressManager.Find(q, fromIndex, toIndex)
 	b, err := toJson(adrs)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

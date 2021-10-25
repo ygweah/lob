@@ -15,15 +15,21 @@ type Address struct {
 }
 
 type AddressManager interface {
-	Find(s string) []*Address
+	Find(s string, fromIndex int, toIndex int) []*Address
 }
 
 type SimpleAddressManager struct {
 	index map[string][]*Address
 }
 
-func (m *SimpleAddressManager) Find(s string) []*Address {
-	return m.index[s]
+func (m *SimpleAddressManager) Find(s string, fromIndex int, toIndex int) []*Address {
+	r := m.index[s]
+	l := len(r)
+	if l <= fromIndex || l < toIndex-1 || fromIndex < 0 || toIndex < 0 || fromIndex >= toIndex {
+		return nil
+	}
+
+	return r[fromIndex:toIndex]
 }
 
 func NewSimpleAddressManager(adrs []*Address) *SimpleAddressManager {
